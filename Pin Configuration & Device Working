@@ -1,0 +1,102 @@
+## 🔌 Pin Configuration & Device Working
+
+Below is the detailed pin mapping for ESP32 and a short description of how each device works in the project.
+
+---
+
+### 1. ACS712 Current Sensor
+- **OUT → GPIO35 (ADC1_CH7)**
+- **VCC → 3.3V**
+- **GND → GND**
+- **IN+ / IN− → In series with fence wire**
+
+**Working:**  
+Measures the current flowing through the fence wire.  
+- No load → baseline (~1.65V output).  
+- Load connected → current increases, output shifts.  
+ESP32 detects this change to identify **unauthorized tapping**.
+
+---
+
+### 2. Voltage Divider (33kΩ + 10kΩ)
+- **Divider node → GPIO34 (ADC1_CH6)**
+- **Top resistor (33kΩ) → Fence +12V**
+- **Bottom resistor (10kΩ) → GND**
+
+**Working:**  
+Scales down 12V fence voltage to ~2.9V (safe for ESP32 ADC).  
+ESP32 monitors fence voltage; a sudden drop may indicate **tapping or breakage**.
+
+---
+
+### 3. Tamper Switch (Push Button 1)
+- **One side → 3.3V rail**
+- **Other side → GPIO32**
+- **Configured as INPUT_PULLDOWN**
+
+**Working:**  
+Detects if the device box is opened or tampered with.  
+- Open/idle → LOW  
+- Pressed → HIGH (tamper alert)
+
+---
+
+### 4. Manual Reset Button (Push Button 2)
+- **One side → 3.3V rail**
+- **Other side → GPIO33**
+- **Configured as INPUT_PULLDOWN**
+
+**Working:**  
+Allows manual reset of alarms.  
+When pressed, buzzer is silenced and system returns to normal monitoring.
+
+---
+
+### 5. Buzzer + Transistor Driver
+- **ESP32 GPIO27 → 1kΩ resistor → Transistor Base (2N2222)**
+- **Emitter → GND**
+- **Collector → Buzzer negative (−)**
+- **Buzzer positive (+) → 3.3V rail**
+
+**Working:**  
+When unauthorized tapping or tamper is detected, ESP32 drives GPIO27 HIGH.  
+The transistor switches the buzzer ON, giving a **local audible alarm**.
+
+---
+
+### 6. LoRa SX1278 Module (Ra-02)
+- **MOSI → GPIO23**
+- **MISO → GPIO19**
+- **SCK → GPIO18**
+- **NSS/CS → GPIO5**
+- **RESET → GPIO14**
+- **DIO0 → GPIO2**
+- **VCC → 3.3V**
+- **GND → GND**
+
+**Working:**  
+Transmits alert messages wirelessly over long range (5–10 km rural).  
+Message includes status (tap/tamper), voltage, current, and optional GPS coordinates.
+
+---
+
+### 7. GPS NEO-6M Module
+- **GPS TX → ESP32 GPIO16 (RX2)**
+- **GPS RX → ESP32 GPIO17 (TX2)**
+- **VCC → 3.3V (or 5V depending on module)**
+- **GND → GND**
+
+**Working:**  
+Provides device location (latitude, longitude) and accurate time.  
+Coordinates are added to LoRa alerts to identify *which node* raised the alarm.
+
+---
+
+### 8. Power Supply (LM2596 Buck Converter)
+- **VIN+ → Battery +12V**
+- **VIN− → Battery GND**
+- **VOUT+ → 3.3V rail**
+- **VOUT− → GND rail**
+
+**Working:**  
+Steps down the 12V Li-ion battery pack (11.1V nominal, 12.6V max) to a stable 3.3V for the ESP32 and all modules.
