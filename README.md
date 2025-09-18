@@ -64,5 +64,4 @@ It monitors **current and voltage** on the fence line, detects **tampering**, an
 - Chittiboina Venkata Naga Poojitha – Circuit Design & Testing  
 - Chinthala Muni Jaswanth Kumar – Embedded Programming & Debugging
 - Skandan C- circuit schematic and Research
-- Harsha Vardhan-PPT design, presentation & project pitching  
-- Rajesh S – Documentation
+- Matta HarshaVardhan-PPT design, presentation & project pitching  
